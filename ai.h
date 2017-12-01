@@ -35,11 +35,11 @@ public:
 
     std::ostream& showRobots(std::ostream&) const;
 
-    //AI& addComponent(int x, int y, int maxnmod, int type = 0, int velocity = 0);
+    AI& addComponent(int x, int y, int maxnmod, int type = 0, int velocity = 0);
 
-    //AI& addModule(int n, int type, int energyuse, int cost, int energylevel = 0, int maxnumb = 0, int radius = 0, int angle = 0);
+    AI& addModule(int n, int type, int energyuse, int cost, int energylevel = 0, int maxnumb = 0, int radius = 0, int angle = 0);
 
-    //AI& addDiffPlace(int x, int y, int type);
+    AI& addDiffPlace(int x, int y, int type);
 
     AI& saveIntoFile(char *nameOfFile);
 
@@ -47,7 +47,7 @@ public:
 
     env getEn() const { return en; }
 
-    AI& setEn(env enn) { en = enn; return *this; }
+    AI& setEn(env enn) {en = *(enn.clone()); return *this; }
 
     std::vector<component*> getRobots() const { return robots; }
 

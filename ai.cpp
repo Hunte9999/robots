@@ -58,6 +58,102 @@ namespace robots{
         return *this;
     }
 
+    AI& AI::addComponent(int x, int y, int maxnmod, int type, int velocity)
+    {
+        int a, b;
+        en.getRazm(a, b);
+        if(x < 0 || x >= a){
+            throw std::invalid_argument("Invalid x coordinate");
+        }
+        if(y < 0 || y >= b){
+            throw std::invalid_argument("Invalid y coordinate");
+        }
+        component* comp = nullptr;
+        movcomp* movcom = nullptr;
+        managecomp* mancomp = nullptr;
+        movmanagecomp* movmancomp = nullptr;
+        place *plc = en.getPlace(x, y);
+        if (plc->retType() != 0){
+            throw std::invalid_argument("this place is not for you");
+        }
+        switch(type){
+        case 0:
+            comp = new component(x, y, maxnmod);
+            en.setType(x, y, *comp);
+            break;
+        case 1:
+            movcom = new movcomp(x, y, maxnmod, velocity);
+            en.setType(x, y, *movcom);
+            break;
+        case 2:
+            mancomp = new managecomp(x, y, maxnmod);
+            en.setType(x, y, *mancomp);
+            break;
+        case 3:
+            movmancomp = new movmanagecomp(x, y, maxnmod, velocity);
+            en.setType(x, y, *movmancomp);
+            break;
+        }
+        return *this;
+    }
+
+    AI& AI::addModule(int n, int type, int energyuse, int cost, int energylevel, int maxnumb, int radius, int angle)
+    {
+        if (n > robots.size() || n < 0){
+            throw std::invalid_argument("Robots list not so long");
+        }
+        component* cmp = robots[n];
+
+        manager *man = nullptr;
+        generator *gen = nullptr;
+        sensor *sen = nullptr;
+
+        switch (type){
+        case 1:
+            gen = new generator(energylevel, cost);
+            gen->setSost(ON);
+            cmp->addModule(*gen);
+            break;
+        case 2:
+            sen = new sensor(radius, angle, energyuse, cost);
+            sen->setSost(ON);
+            cmp->addModule(*sen);
+            break;
+        case 3:
+            man = new manager(maxnumb, radius, cost, energyuse);
+            man->setSost(ON);
+            cmp->addModule(*man);
+            cmp->setIsManaged(1);
+            break;
+        }
+
+        return *this;
+
+    }
+
+    AI& AI::addDiffPlace(int x, int y, int type)
+    {
+        int a, b;
+        en.getRazm(a, b);
+        if (x < 0 || x >= a){
+            throw std::invalid_argument("Invalid x value");
+        }
+        if (y < 0 || y >= b){
+            throw std::invalid_argument("Invalid y value");
+        }
+        obstacle *obst = nullptr;
+        ti* t = nullptr;
+        if (type == 0){
+            obst = new obstacle(x, y);
+            en.setType(x, y, *obst);
+        }
+        else{
+            t = new ti(x, y);
+            en.setType(x, y, *t);
+        }
+        return *this;
+    }
+
     AI& AI::start(int shag)
     {
         int energy = 0;

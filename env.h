@@ -26,7 +26,6 @@ public:
         std::vector<std::vector<place*>> ne = enn.getPole();
         std::vector<place*> plcne;
         enn.getRazm(n, m);
-        //pole.reserve(m);
 
         for(int i = 0; i < m; ++i){
             pole.push_back(plcne);
@@ -43,9 +42,13 @@ public:
 
     const std::vector <std::vector <place*> > &getPole() const { return pole; }
 
-    env& addComponent(int x, int y, int maxnmod, int type = 0, int velocity = 0);
-    env& addModule(int x, int y, int type, int energyuse, int cost, int energylevel = 0, int maxnumb = 0, int radius = 0, int angle = 0);
-    env& addDiffPlace(int x, int y, int type);
+    //env& addComponent(int x, int y, int maxnmod, int type = 0, int velocity = 0);
+    //env& addModule(int x, int y, int type, int energyuse, int cost, int energylevel = 0, int maxnumb = 0, int radius = 0, int angle = 0);
+    //env& addDiffPlace(int x, int y, int type);
+
+    virtual env* clone() const{
+        return new env(*this);
+    }
 
     void getRazm(int &a, int &b) const;
 
@@ -58,13 +61,6 @@ public:
                 delete pole.at(i).at(j);
             }
         }
-        /*for(std::vector<place*> a: pole){
-            for(place* b: a){
-                delete b;
-            }
-            a.clear();
-        }
-        pole.clear();*/
     }
 };
 

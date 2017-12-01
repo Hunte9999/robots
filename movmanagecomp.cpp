@@ -1,0 +1,3 @@
+#include "movmanagecomp.h"
+
+

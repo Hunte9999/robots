@@ -60,38 +60,30 @@ namespace robots{
 
     AI& AI::addComponent(int x, int y, int maxnmod, int type, int velocity)
     {
-        int a, b;
-        en.getRazm(a, b);
-        if(x < 0 || x >= a){
-            throw std::invalid_argument("Invalid x coordinate");
-        }
-        if(y < 0 || y >= b){
-            throw std::invalid_argument("Invalid y coordinate");
-        }
         component* comp = nullptr;
         movcomp* movcom = nullptr;
         managecomp* mancomp = nullptr;
         movmanagecomp* movmancomp = nullptr;
-        place *plc = en.getPlace(x, y);
-        if (plc->retType() != 0){
-            throw std::invalid_argument("this place is not for you");
-        }
         switch(type){
         case 0:
             comp = new component(x, y, maxnmod);
-            en.setType(x, y, *comp);
+            en.setType(*comp);
+            robots.push_back(comp);
             break;
         case 1:
             movcom = new movcomp(x, y, maxnmod, velocity);
-            en.setType(x, y, *movcom);
+            en.setType(*movcom);
+            robots.push_back(movcom);
             break;
         case 2:
             mancomp = new managecomp(x, y, maxnmod);
-            en.setType(x, y, *mancomp);
+            en.setType(*mancomp);
+            robots.push_back(mancomp);
             break;
         case 3:
             movmancomp = new movmanagecomp(x, y, maxnmod, velocity);
-            en.setType(x, y, *movmancomp);
+            en.setType(*movmancomp);
+            robots.push_back(movmancomp);
             break;
         }
         return *this;
@@ -102,7 +94,7 @@ namespace robots{
         if (n > robots.size() || n < 0){
             throw std::invalid_argument("Robots list not so long");
         }
-        component* cmp = robots[n];
+        component *cmp = robots[n];
 
         manager *man = nullptr;
         generator *gen = nullptr;
@@ -113,17 +105,23 @@ namespace robots{
             gen = new generator(energylevel, cost);
             gen->setSost(ON);
             cmp->addModule(*gen);
+            cmp->turnOnMod(cmp->getModules().size());
+            //delete gen;
             break;
         case 2:
             sen = new sensor(radius, angle, energyuse, cost);
             sen->setSost(ON);
             cmp->addModule(*sen);
+            cmp->turnOnMod(cmp->getModules().size());
+            //delete sen;
             break;
         case 3:
             man = new manager(maxnumb, radius, cost, energyuse);
             man->setSost(ON);
             cmp->addModule(*man);
             cmp->setIsManaged(1);
+            cmp->turnOnMod(cmp->getModules().size());
+            //delete man;
             break;
         }
 
@@ -133,23 +131,17 @@ namespace robots{
 
     AI& AI::addDiffPlace(int x, int y, int type)
     {
-        int a, b;
-        en.getRazm(a, b);
-        if (x < 0 || x >= a){
-            throw std::invalid_argument("Invalid x value");
-        }
-        if (y < 0 || y >= b){
-            throw std::invalid_argument("Invalid y value");
-        }
         obstacle *obst = nullptr;
         ti* t = nullptr;
         if (type == 0){
             obst = new obstacle(x, y);
-            en.setType(x, y, *obst);
+            en.setType(*obst);
+            //delete obst;
         }
         else{
             t = new ti(x, y);
-            en.setType(x, y, *t);
+            en.setType(*t);
+            //delete t;
         }
         return *this;
     }
@@ -171,9 +163,10 @@ namespace robots{
         }
         else{
             for (int i = 0; i < shag; ++i){
-                if(stop()){
-                    break;
-                }
+                //if(stop()){
+                //    break;
+                //}
+                std::cout << i << " shag" << std::endl;
                 energy = goRobots(energy);
             }
         }
@@ -299,7 +292,7 @@ namespace robots{
 
             for(module *mods:mod){
                 std::cout << "mod return type = " << mods->retType() << std::endl;
-                //std::cout << "mod sost is = " << mods->getSost() << std::endl;
+                std::cout << "mod sost is = " << mods->getSost() << std::endl;
                 if(mods->retType() == 2 && mods->getSost() == ON){
                     sen = dynamic_cast<sensor*>(mods);
                     x = sen->getData(now->getX(), now->getY(), numpairs);
@@ -321,11 +314,12 @@ namespace robots{
                         if(!(now->getX() == x[k].x && now->getY() == x[k].y)){
                             place* plc = new place(x[k].x, x[k].y);
                             plc->setSost(OPEN);
-                            en.setType(x[k].x, x[k].y, *plc);
+                            en.setType(*plc);
                         }
                     }
                 }
                 if(mods->retType() == 3 && mods->getSost() == ON){
+                    std::cout << "i'm here!!!" <<std::endl;
                     man = dynamic_cast<manager*>(mods);
                     comps = man->getTab();
                     for (int cmp: comps){
@@ -338,6 +332,7 @@ namespace robots{
                     }
                     int ijk = 0;
                     for (component *cmpv: robots){
+                        std::cout << "new cmpv: " << cmpv->getX() << " " << cmpv->getY() << std::endl;
                         if (cmpv->getX() >= now->getX() - man->getRadius() && cmpv->getX() <= now->getX() + man->getRadius()){
                             if(cmpv->getY() >= now->getY() - man->getRadius() && cmpv->getY() <= now->getY() + man->getRadius()){
                                 if(!(cmpv->getX() == now->getX() && cmpv->getY() == now->getY())){
@@ -387,8 +382,8 @@ namespace robots{
     {
         place *plc = new place(x, y);
         plc->setSost(OPEN);
-        en.setType(x, y, *(plc));
-        en.setType(comp->getX(), comp->getY(), *comp);
+        en.setType(*(plc));
+        en.setType(*comp);
         return *this;
     }
 }

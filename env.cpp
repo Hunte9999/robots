@@ -10,12 +10,8 @@ namespace robots {
 
         std::vector<place*> ne;
 
-        for (int i =0; i < mm; ++i){
-           pole.push_back(ne);
-        }
-        pole.reserve(mm);
         for(int i = 0; i < mm; ++i){
-            pole.at(i).reserve(nn);
+            pole.push_back(ne);
             for(int j = 0; j < nn; ++j){
                 pole.at(i).push_back(new place(i, j));
             }
@@ -38,17 +34,33 @@ namespace robots {
 
     int env::getType(int x, int y) const
     {
+        if(x < 0 || x >= n){
+            throw std::invalid_argument("Invalid x coordinate");
+        }
+        if(y < 0 || y >= m){
+            throw std::invalid_argument("Invalid y coordinate");
+        }
         if(pole.at(y).at(x)->getSost() == CLOSE){
             return -1;
         }
         return pole.at(y).at(x)->retType();
     }
 
-    env& env::setType(int x, int y, const place &n)
+    env& env::setType(const place &plc)
     {
+        int x = plc.getX(), y = plc.getY();
+        if(x < 0 || x >= n){
+            throw std::invalid_argument("Invalid x coordinate");
+        }
+        if(y < 0 || y >= m){
+            throw std::invalid_argument("Invalid y coordinate");
+        }
         place* del = pole.at(y).at(x);
-        pole.at(y).at(x) = n.clone();
-        if (n.retType() == 3){
+        if(del->retType() != 0 && plc.retType() != 0){
+            throw std::invalid_argument("This place is not for you");
+        }
+        pole.at(y).at(x) = plc.clone();
+        if (plc.retType() == 3){
             pole.at(y).at(x)->setSost(OPEN);
         }
         delete del;
@@ -57,7 +69,13 @@ namespace robots {
 
     place* env::getPlace(int x, int y) const
     {
-        return pole.at(y).at(x)->clone();
+        if(x < 0 || x >= n){
+            throw std::invalid_argument("Invalid x coordinate");
+        }
+        if(y < 0 || y >= m){
+            throw std::invalid_argument("Invalid y coordinate");
+        }
+        return pole.at(y).at(x);
     }
 
     std::ostream& operator<<(std::ostream &os, const env &n)

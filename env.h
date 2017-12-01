@@ -37,7 +37,7 @@ public:
 
     env& setRazm(int nn, int mm);
     int getType(int x, int y) const ;
-    env& setType(int x, int y, const place& n);
+    env& setType(const place &plc);
     place* getPlace(int x, int y) const;
 
     const std::vector <std::vector <place*> > &getPole() const { return pole; }

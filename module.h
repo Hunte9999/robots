@@ -19,7 +19,7 @@ private:
 protected:
     virtual std::ostream& show(std::ostream &) const = 0;
 public:
-    module(int enerus, int cst, int prior): energyuse(enerus), cost(cst), priority(prior), sost(OFF) {}
+    module(int enerus, int cst, int prior): energyuse(enerus), cost(cst), priority(prior), sost(ON) {}
 
     module& setSost(ModSost st);
 

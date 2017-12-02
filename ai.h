@@ -17,7 +17,7 @@ private:
 protected:
     int goRobots(int energy);
     int canMove(movcomp* csmv, sides s) const;
-    AI& reMap(int x, int y, component* comp);
+    AI& reMap(int x, int y, int n);
 public:
     AI(env envi): en(envi) {}
     AI(const AI& a): en(a.getEn()){

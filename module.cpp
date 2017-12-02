@@ -10,7 +10,7 @@ namespace robots {
 
     module& module::setSost(ModSost st)
     {
-        if (st != 0 && st != 1){
+        if (st != ON && st != OFF){
             throw std::invalid_argument("invalid argument");
         }
 

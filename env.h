@@ -37,14 +37,16 @@ public:
 
     env& setRazm(int nn, int mm);
     int getType(int x, int y) const ;
-    env& setType(const place &plc);
+    component *setType(const place &plc);
     place* getPlace(int x, int y) const;
+
+    env& swap(int x1, int y1, int x2, int y2);
 
     const std::vector <std::vector <place*> > &getPole() const { return pole; }
 
-    //env& addComponent(int x, int y, int maxnmod, int type = 0, int velocity = 0);
-    //env& addModule(int x, int y, int type, int energyuse, int cost, int energylevel = 0, int maxnumb = 0, int radius = 0, int angle = 0);
-    //env& addDiffPlace(int x, int y, int type);
+    component* addComponent(int x, int y, int maxnmod, int type = 0, int velocity = 0);
+    env& addModule(int x, int y, int type, int energyuse, int cost, int energylevel = 0, int maxnumb = 0, int radius = 0, int angle = 0);
+    env& addDiffPlace(int x, int y, int type);
 
     virtual env* clone() const{
         return new env(*this);

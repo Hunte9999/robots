@@ -60,32 +60,10 @@ namespace robots{
 
     AI& AI::addComponent(int x, int y, int maxnmod, int type, int velocity)
     {
-        component* comp = nullptr;
-        movcomp* movcom = nullptr;
-        managecomp* mancomp = nullptr;
-        movmanagecomp* movmancomp = nullptr;
-        switch(type){
-        case 0:
-            comp = new component(x, y, maxnmod);
-            en.setType(*comp);
-            robots.push_back(comp);
-            break;
-        case 1:
-            movcom = new movcomp(x, y, maxnmod, velocity);
-            en.setType(*movcom);
-            robots.push_back(movcom);
-            break;
-        case 2:
-            mancomp = new managecomp(x, y, maxnmod);
-            en.setType(*mancomp);
-            robots.push_back(mancomp);
-            break;
-        case 3:
-            movmancomp = new movmanagecomp(x, y, maxnmod, velocity);
-            en.setType(*movmancomp);
-            robots.push_back(movmancomp);
-            break;
-        }
+        component* cmp = en.addComponent(x, y, maxnmod, type, velocity);
+
+        robots.push_back(cmp);
+
         return *this;
     }
 
@@ -95,35 +73,7 @@ namespace robots{
             throw std::invalid_argument("Robots list not so long");
         }
         component *cmp = robots[n];
-
-        manager *man = nullptr;
-        generator *gen = nullptr;
-        sensor *sen = nullptr;
-
-        switch (type){
-        case 1:
-            gen = new generator(energylevel, cost);
-            gen->setSost(ON);
-            cmp->addModule(*gen);
-            cmp->turnOnMod(cmp->getModules().size());
-            //delete gen;
-            break;
-        case 2:
-            sen = new sensor(radius, angle, energyuse, cost);
-            sen->setSost(ON);
-            cmp->addModule(*sen);
-            cmp->turnOnMod(cmp->getModules().size());
-            //delete sen;
-            break;
-        case 3:
-            man = new manager(maxnumb, radius, cost, energyuse);
-            man->setSost(ON);
-            cmp->addModule(*man);
-            cmp->setIsManaged(1);
-            cmp->turnOnMod(cmp->getModules().size());
-            //delete man;
-            break;
-        }
+        en.addModule(cmp->getX(), cmp->getY(), type, energyuse, cost, energylevel, maxnumb, radius, angle);
 
         return *this;
 
@@ -166,7 +116,7 @@ namespace robots{
                 //if(stop()){
                 //    break;
                 //}
-                std::cout << i << " shag" << std::endl;
+                //std::cout << i << " shag" << std::endl;
                 energy = goRobots(energy);
             }
         }
@@ -218,7 +168,7 @@ namespace robots{
         return 1;
     }
 
-    int AI::goRobots(int energy) //доделать ситуацию с отрицательной энергией переданной (отключение модулей)
+    int AI::goRobots(int energy)
     {
         std::vector<module*> mod;
         std::vector<int> comps;
@@ -230,7 +180,7 @@ namespace robots{
         sensor *sen = nullptr;
         generator *gen = nullptr;
         manager *man = nullptr;
-        int go, go1;
+        int go, go1, sch = 0;
 
         en.getRazm(m ,n);
 
@@ -241,8 +191,13 @@ namespace robots{
             csmv = dynamic_cast<movcomp*>(now);
             y.x = now->getX();
             y.y = now->getY();
-            if(csmv->getIsManaged() == 0){
-                std::cout << "NOT MANAGED module " << std::endl;
+            if(!csmv){
+                std::cout << "NOT MOVING COMPONENT" << std::endl;
+            }
+            else{
+                if(csmv->getIsManaged() == 0){
+                    std::cout << "NOT MANAGED component" << std::endl;
+                }
             }
             if(csmv && csmv->getIsManaged() == 1){ //переделать в нормальный поиск пути
                 do{
@@ -271,20 +226,20 @@ namespace robots{
                     }
                 } while(go != go1 && go1 < 100);
                 if(csmv->getX() < 0){
-                    csmv->setX(csmv->getX() + n);
+                    csmv->setX(csmv->getX() + m);
                 }
                 if(csmv->getX() >= n){
-                    csmv->setX(csmv->getX() - n);
+                    csmv->setX(csmv->getX() - m);
                 }
                 if(csmv->getY() < 0){
-                    csmv->setY(csmv->getY() + m);
+                    csmv->setY(csmv->getY() + n);
                 }
                 if(csmv->getY() < 0){
-                    csmv->setY(csmv->getY() + m);
+                    csmv->setY(csmv->getY() + n);
                 }
                 now->setX(csmv->getX());
                 now->setY(csmv->getY());
-                reMap(y.x, y.y, now);
+                reMap(y.x, y.y, sch);
                 std::cout << "Moved component from " << y.x << " " << y.y << " to " << now->getX() << " " << now->getY() << std::endl;
             }
             mod = now->getModules();
@@ -297,7 +252,7 @@ namespace robots{
                     sen = dynamic_cast<sensor*>(mods);
                     x = sen->getData(now->getX(), now->getY(), numpairs);
                     for (int k = 0; k < numpairs; ++k){
-                        std::cout <<"k: " << k << ", x: " << x[k].x << ", y: " << x[k].y << std::endl;
+                            std::cout <<"k: " << k << ", x: " << x[k].x << ", y: " << x[k].y << std::endl;
                         if(x[k].x < 0){
                             x[k].x += m;
                         }
@@ -311,15 +266,15 @@ namespace robots{
                             x[k].y -= n;
                         }
                         std::cout <<"k: " << k << ", x: " << x[k].x << ", y: " << x[k].y << std::endl;
-                        if(!(now->getX() == x[k].x && now->getY() == x[k].y)){
+                        en.getPlace(x[k].x, x[k].y)->setSost(OPEN);
+                        /*if(!(now->getX() == x[k].x && now->getY() == x[k].y)){
                             place* plc = new place(x[k].x, x[k].y);
                             plc->setSost(OPEN);
                             en.setType(*plc);
-                        }
+                        }*/
                     }
                 }
                 if(mods->retType() == 3 && mods->getSost() == ON){
-                    std::cout << "i'm here!!!" <<std::endl;
                     man = dynamic_cast<manager*>(mods);
                     comps = man->getTab();
                     for (int cmp: comps){
@@ -352,6 +307,7 @@ namespace robots{
                     energ += gen->getEnergyLevel();
                 }
             }
+            sch++;
         }
 
         return energ + energy;
@@ -378,12 +334,16 @@ namespace robots{
     }
 
 
-    AI& AI::reMap(int x, int y, component* comp)
+    AI& AI::reMap(int x, int y, int n)
     {
-        place *plc = new place(x, y);
-        plc->setSost(OPEN);
-        en.setType(*(plc));
-        en.setType(*comp);
+        component* comp = robots[n];
+        place* plc = nullptr;
+        if(!(x == comp->getX() && y == comp->getY())){
+            en.swap(x, y, comp->getX(), comp->getY());
+            plc = new place(x, y);
+            plc->setSost(OPEN);
+            en.setType(*(plc));
+        }
         return *this;
     }
 }

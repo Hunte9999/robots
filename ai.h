@@ -19,7 +19,19 @@ protected:
     int canMove(movcomp* csmv, sides s) const;
     AI& reMap(int x, int y, int n);
 public:
-    AI(env envi): en(envi) {}
+    AI(env envi): en(envi) {
+        int a, b;
+        place* plc = nullptr;
+        en.getRazm(a, b);
+        for (int i = 0; i < a; ++i){
+            for (int j = 0; j < b; ++j){
+                plc = en.getPlace(i, j);
+                if(plc->retType() > 2){
+                    robots.push_back(dynamic_cast<component*>(plc));
+                }
+            }
+        }
+    }
     AI(const AI& a): en(a.getEn()){
         std::vector<component*> robs = a.getRobots();
 

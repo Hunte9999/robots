@@ -81,7 +81,7 @@ namespace robots{
 
     AI& AI::addDiffPlace(int x, int y, int type)
     {
-        obstacle *obst = nullptr;
+        /*obstacle *obst = nullptr;
         ti* t = nullptr;
         if (type == 0){
             obst = new obstacle(x, y);
@@ -92,7 +92,9 @@ namespace robots{
             t = new ti(x, y);
             en.setType(*t);
             //delete t;
-        }
+        }*/
+        en.addDiffPlace(x, y, type);
+
         return *this;
     }
 
@@ -171,11 +173,11 @@ namespace robots{
     int AI::goRobots(int energy)
     {
         std::vector<module*> mod;
-        std::vector<int> comps;
+        std::vector<component*> comps;
         std::vector<paircoord> x;
-        component *cst = nullptr;
+        //component *cst = nullptr;
         movcomp *csmv = nullptr;
-        int numpairs, energ = 0, m, n;
+        int energ = 0, m, n;
         paircoord y;
         sensor *sen = nullptr;
         generator *gen = nullptr;
@@ -250,8 +252,8 @@ namespace robots{
                 std::cout << "mod sost is = " << mods->getSost() << std::endl;
                 if(mods->retType() == 2 && mods->getSost() == ON){
                     sen = dynamic_cast<sensor*>(mods);
-                    x = sen->getData(now->getX(), now->getY(), numpairs);
-                    for (int k = 0; k < numpairs; ++k){
+                    x = sen->getData(now->getX(), now->getY());
+                    for (int k = 0; k < x.size(); ++k){
                             std::cout <<"k: " << k << ", x: " << x[k].x << ", y: " << x[k].y << std::endl;
                         if(x[k].x < 0){
                             x[k].x += m;
@@ -277,15 +279,15 @@ namespace robots{
                 if(mods->retType() == 3 && mods->getSost() == ON){
                     man = dynamic_cast<manager*>(mods);
                     comps = man->getTab();
-                    for (int cmp: comps){
-                        cst = robots[cmp];
+                    for (component* cst: comps){
+
                         if(cst->getX() > now->getX() + man->getRadius() || cst->getY() > now->getY() + man->getRadius()){
-                            man->delComp(cmp);
-                            robots[cmp]->setIsManaged(0);
+                            man->delComp(cst);
+                            cst->setIsManaged(0);
                             std::cout << "found bad robot and deleted it"<<std::endl;
                         }
                     }
-                    int ijk = 0;
+
                     for (component *cmpv: robots){
                         std::cout << "new cmpv: " << cmpv->getX() << " " << cmpv->getY() << std::endl;
                         if (cmpv->getX() >= now->getX() - man->getRadius() && cmpv->getX() <= now->getX() + man->getRadius()){
@@ -293,13 +295,13 @@ namespace robots{
                                 if(!(cmpv->getX() == now->getX() && cmpv->getY() == now->getY())){
                                     if (cmpv->getIsManaged() == 0){
                                         std::cout << "adding component to tab" << std::endl;
-                                        man->addComp(ijk);
+                                        man->addComp(cmpv);
                                         cmpv->setIsManaged(1);
                                     }
                                 }
                             }
                         }
-                        ijk++;
+
                     }
                 }
                 if(mods->retType() == 1 && mods->getSost() == ON){

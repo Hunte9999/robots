@@ -8,16 +8,16 @@ namespace robots {
         return os<<", radius: " << radius << ", angle: " << angle << ", napr: " << napr;
     }
 
-    std::vector<paircoord> sensor::getData(const int x0, const int y0, int& k) const
+    std::vector<paircoord> sensor::getData(const int x0, const int y0) const
     {
-        k = 0;
+
         paircoord xy;
         std::vector<paircoord> res;
 
         for (xy.y = y0 - radius; xy.y <= y0 + radius; ++xy.y){
             for(xy.x = x0 - radius; xy.x <= x0 + radius; ++xy.x){
                 res.push_back(xy);
-                k++;
+
             }
         }
 

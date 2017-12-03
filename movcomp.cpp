@@ -19,10 +19,10 @@ namespace robots{
             setY(getY() - velocity);
             break;
         case LEFT:
-            setX(getX() + velocity);
+            setX(getX() - velocity);
             break;
         case RIGHT:
-            setX(getX() - velocity);
+            setX(getX() + velocity);
             break;
         }
         return *this;

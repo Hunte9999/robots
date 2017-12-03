@@ -23,9 +23,9 @@ public:
     int getAngle() const { return angle; }
     sides getNapr() const {return napr; }
 
-    std::vector<paircoord> getData(const int x0, const int y0, int &k) const;
+    std::vector<paircoord> getData(const int x0, const int y0) const;
 
-    sensor& setNapr(sides napr);
+    sensor& setNapr(sides nap) { napr = nap; return *this; }
 
     virtual int retType() const { return 2; }
     virtual sensor* clone() const{

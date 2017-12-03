@@ -11,8 +11,8 @@ class manager: public module
 {
 private:
     int maxnumb, currnumb, radius;
-    std::vector<int> tab;
-    //int SearchComp(int x, int y);
+    std::vector<component*> tab;
+    int SearchComp(component*) const;
 protected:
     virtual std::ostream& show(std::ostream &) const;
 public:
@@ -23,10 +23,10 @@ public:
     int getRadius() const { return radius; }
     int getMaxNumb() const { return maxnumb; }
 
-    manager& addComp(int n);
-    manager& delComp(int n);
+    manager& addComp(component *n);
+    manager& delComp(component *n);
 
-    const std::vector<int> &getTab() const { return tab; }
+    const std::vector<component*> &getTab() const { return tab; }
 
     int retType() const { return 3; }
     manager* clone() const{

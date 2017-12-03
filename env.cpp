@@ -195,4 +195,31 @@ namespace robots {
         return *this;
     }
 
+    env& env::addDiffPlace(int x, int y, int type)
+    {
+        if(x < 0 || x >= m){
+            throw std::invalid_argument("Invalid x coordinate");
+        }
+
+        if(y < 0 || y >= n){
+            throw std::invalid_argument("Invalid y coordinate");
+        }
+        if(type != 0 && type != 1){
+            throw std::invalid_argument("Invalid type argument");
+        }
+        obstacle *obst = nullptr;
+        ti* t = nullptr;
+        if (type == 0){
+            obst = new obstacle(x, y);
+            setType(*obst);
+            //delete obst;
+        }
+        else{
+            t = new ti(x, y);
+            setType(*t);
+            //delete t;
+        }
+        return *this;
+    }
+
 }

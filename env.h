@@ -19,7 +19,8 @@ class env
 {
 private:
     std::vector <std::vector <place*> > pole;
-    int n, m;
+    int n, m, numOfTI = 0;
+    env& reMap(int x, int y, movcomp* csmv);
 public:
     env(int nn, int mm);
     env(const env& enn){
@@ -39,6 +40,12 @@ public:
     int getType(int x, int y) const ;
     component *setType(const place &plc);
     place* getPlace(int x, int y) const;
+    int getNumOfTI() const { return numOfTI; }
+
+    int howManyStepsCanBeMoved(movcomp* mvcmp, robots::sides s, int steps) const;
+    bool Move(movcomp* csmv, robots::sides s, int steps);
+
+    bool isFinished() const;
 
     env& swap(int x1, int y1, int x2, int y2);
 

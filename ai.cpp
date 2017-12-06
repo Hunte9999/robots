@@ -17,16 +17,11 @@ namespace robots{
         FILE *fp = fopen(nameOfFile, "r+b");
         int m, n;
         env *en1;
-
         std::fread(&m, sizeof(int), 1, fp);
         std::fread(&n, sizeof(int), 1, fp);
-
         en1 = new env(m, n);
-
         en = *en1;
-
         delete en1;
-
         //if(!fin.is_open())
         //    throw std::invalid_argument("Invalid file name");
     }*/
@@ -38,9 +33,12 @@ namespace robots{
 
     std::ostream& AI::showRobots(std::ostream &os) const
     {
-        for (component* comp: robots){
-            os << *comp << std::endl;
+        for(component* comp: robots){
+            os << *(comp) << std::endl;
         }
+        /*for (int i = 0; i < robots.size(); ++i){
+            os << *(robots[i]) << std::endl;
+        }*/
         return os;
     }
 
@@ -63,6 +61,7 @@ namespace robots{
         component* cmp = en.addComponent(x, y, maxnmod, type, velocity);
 
         robots.push_back(cmp);
+        std::cout << " size of Vector: " << robots.size() << std::endl;
 
         return *this;
     }
@@ -81,18 +80,7 @@ namespace robots{
 
     AI& AI::addDiffPlace(int x, int y, int type)
     {
-        /*obstacle *obst = nullptr;
-        ti* t = nullptr;
-        if (type == 0){
-            obst = new obstacle(x, y);
-            en.setType(*obst);
-            //delete obst;
-        }
-        else{
-            t = new ti(x, y);
-            en.setType(*t);
-            //delete t;
-        }*/
+
         en.addDiffPlace(x, y, type);
 
         return *this;
@@ -109,65 +97,20 @@ namespace robots{
             return *this;
         }
         if (shag == -1){
-            while (!stop()){
+            while (!en.isFinished()){
                 energy = goRobots(energy);
             }
         }
         else{
             for (int i = 0; i < shag; ++i){
-                //if(stop()){
-                //    break;
-                //}
+                if(en.isFinished()){
+                    break;
+                }
                 //std::cout << i << " shag" << std::endl;
                 energy = goRobots(energy);
             }
         }
         return *this;
-    }
-
-    int AI::canMove(movcomp* csmv, sides s) const
-    {
-        int velocity = csmv->getVelocity(), m, n;
-        int x = csmv->getX(), y = csmv->getY();
-        place *plc = nullptr;
-
-        en.getRazm(m, n);
-
-        switch(s){
-        case UP:
-            y += velocity;
-            break;
-        case DOWN:
-            y -= velocity;
-            break;
-        case LEFT:
-            x -= velocity;
-            break;
-        case RIGHT:
-            x += velocity;
-            break;
-        }
-
-        if(x < 0){
-            x += n;
-        }
-        if (x >= n){
-            x -= n;
-        }
-        if(y < 0){
-            y += m;
-        }
-        if (y >= m){
-            y -= m;
-        }
-
-        plc = en.getPlace(x, y);
-
-        if((plc->retType() == 0 || plc->retType() == 1) && plc->getSost() == CLOSE){
-            return 0;
-        }
-
-        return 1;
     }
 
     int AI::goRobots(int energy)
@@ -182,67 +125,58 @@ namespace robots{
         sensor *sen = nullptr;
         generator *gen = nullptr;
         manager *man = nullptr;
-        int go, go1, sch = 0;
+        int go, sch = 0;
+        int ars[4];
+        sides a;
 
-        en.getRazm(m ,n);
+        en.getRazm(n ,m);
 
         for (component *now: robots){
+            //std::cout << *now << std::endl;
             go = 0;
-            go1 = 0;
             energ -= now->getEnergyUse();
             csmv = dynamic_cast<movcomp*>(now);
             y.x = now->getX();
             y.y = now->getY();
-            if(!csmv){
+            /*if(!csmv){
                 std::cout << "NOT MOVING COMPONENT" << std::endl;
             }
             else{
                 if(csmv->getIsManaged() == 0){
                     std::cout << "NOT MANAGED component" << std::endl;
                 }
-            }
-            if(csmv && csmv->getIsManaged() == 1){ //переделать в нормальный поиск пути
-                do{
-                    go1 = go;
-                    switch(rand()%4){
-                    case 0:
-                        go += canMove(csmv, RIGHT);
-                        if(go == go1)
-                            csmv->Move(RIGHT);
-                        break;
-                    case 1:
-                        go += canMove(csmv, LEFT);
-                        if(go == go1)
-                            csmv->Move(LEFT);
-                        break;
-                    case 2:
-                        go += canMove(csmv, UP);
-                        if(go == go1)
-                            csmv->Move(UP);
-                        break;
-                    case 3:
-                        go += canMove(csmv, DOWN);
-                        if(go == go1)
-                            csmv->Move(DOWN);
-                        break;
+            }*/
+            if(csmv && csmv->getIsManaged() == 1){
+                ars[0] = en.howManyStepsCanBeMoved(csmv, UP, csmv->getVelocity());
+                ars[1] = en.howManyStepsCanBeMoved(csmv, DOWN, csmv->getVelocity());
+                ars[2] = en.howManyStepsCanBeMoved(csmv, LEFT, csmv->getVelocity());
+                ars[3] = en.howManyStepsCanBeMoved(csmv, RIGHT, csmv->getVelocity());
+                go = ars[0];
+                a = UP;
+
+                if(ars[2] > go){
+                    go = ars[2];
+                    a = LEFT;
+                }
+
+                if(ars[1] > go){
+                    go = ars[1];
+                    a = DOWN;
+                }
+
+                if(ars[3] > go){
+                    go = ars[3];
+                    a = RIGHT;
+                }
+                std::cout << "go = " << go << ", a = " << a << std::endl;
+                if(go > 0){
+                    bool isMoved = en.Move(csmv, a, go);
+                    if(isMoved){
+                        now->setX(csmv->getX());
+                        now->setY(csmv->getY());
+                        std::cout << "Moved component from " << y.x << " " << y.y << " to " << now->getX() << " " << now->getY() << std::endl;
                     }
-                } while(go != go1 && go1 < 100);
-                if(csmv->getX() < 0){
-                    csmv->setX(csmv->getX() + m);
                 }
-                if(csmv->getX() >= n){
-                    csmv->setX(csmv->getX() - m);
-                }
-                if(csmv->getY() < 0){
-                    csmv->setY(csmv->getY() + n);
-                }
-                if(csmv->getY() < 0){
-                    csmv->setY(csmv->getY() + n);
-                }
-                now->setX(csmv->getX());
-                now->setY(csmv->getY());
-                reMap(y.x, y.y, sch);
-                std::cout << "Moved component from " << y.x << " " << y.y << " to " << now->getX() << " " << now->getY() << std::endl;
             }
             mod = now->getModules();
             //num = now->getCurrNumMod();
@@ -254,8 +188,8 @@ namespace robots{
                     sen = dynamic_cast<sensor*>(mods);
                     x = sen->getData(now->getX(), now->getY());
                     for (int k = 0; k < x.size(); ++k){
-                            std::cout <<"k: " << k << ", x: " << x[k].x << ", y: " << x[k].y << std::endl;
-                        if(x[k].x < 0){
+                         //std::cout <<"k: " << k << ", x: " << x[k].x << ", y: " << x[k].y << std::endl;
+                        /*if(x[k].x < 0){
                             x[k].x += m;
                         }
                         if(x[k].y < 0){
@@ -266,14 +200,11 @@ namespace robots{
                         }
                         if(x[k].y >= n){
                             x[k].y -= n;
-                        }
-                        std::cout <<"k: " << k << ", x: " << x[k].x << ", y: " << x[k].y << std::endl;
-                        en.getPlace(x[k].x, x[k].y)->setSost(OPEN);
-                        /*if(!(now->getX() == x[k].x && now->getY() == x[k].y)){
-                            place* plc = new place(x[k].x, x[k].y);
-                            plc->setSost(OPEN);
-                            en.setType(*plc);
                         }*/
+                        if(x[k].x >=0 && x[k].x < n && x[k].y >= 0 && x[k].y < m){
+                            std::cout <<"k: " << k << ", x: " << x[k].x << ", y: " << x[k].y << std::endl;
+                            en.getPlace(x[k].x, x[k].y)->setSost(OPEN);
+                        }
                     }
                 }
                 if(mods->retType() == 3 && mods->getSost() == ON){
@@ -289,7 +220,7 @@ namespace robots{
                     }
 
                     for (component *cmpv: robots){
-                        std::cout << "new cmpv: " << cmpv->getX() << " " << cmpv->getY() << std::endl;
+                        //std::cout << "new cmpv: " << cmpv->getX() << " " << cmpv->getY() << std::endl;
                         if (cmpv->getX() >= now->getX() - man->getRadius() && cmpv->getX() <= now->getX() + man->getRadius()){
                             if(cmpv->getY() >= now->getY() - man->getRadius() && cmpv->getY() <= now->getY() + man->getRadius()){
                                 if(!(cmpv->getX() == now->getX() && cmpv->getY() == now->getY())){
@@ -313,39 +244,5 @@ namespace robots{
         }
 
         return energ + energy;
-    }
-
-    bool AI::stop() // доделать варианты остановки алгоритма
-    {
-        int m, n;
-        bool isOpen = true;
-
-        en.getRazm(m, n);
-        for (int i = 0; i < m; ++i){
-            for (int j = 0; j < n; ++j){
-                if(en.getPlace(j, i)->getSost() == CLOSE){
-                    isOpen = false;
-                    break;
-                }
-            }
-            if (!isOpen){
-                break;
-            }
-        }
-        return isOpen;
-    }
-
-
-    AI& AI::reMap(int x, int y, int n)
-    {
-        component* comp = robots[n];
-        place* plc = nullptr;
-        if(!(x == comp->getX() && y == comp->getY())){
-            en.swap(x, y, comp->getX(), comp->getY());
-            plc = new place(x, y);
-            plc->setSost(OPEN);
-            en.setType(*(plc));
-        }
-        return *this;
     }
 }

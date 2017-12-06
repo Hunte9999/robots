@@ -34,7 +34,8 @@ SOURCES += \
     ai.cpp \
     env.cpp \
     ti.cpp \
-    obstacle.cpp
+    obstacle.cpp \
+    myvector.cpp
 
 HEADERS += \
     module.h \
@@ -49,7 +50,8 @@ HEADERS += \
     ai.h \
     env.h \
     ti.h \
-    obstacle.h
+    obstacle.h \
+    myvector.h
 unix {
     target.path = /usr/lib
     INSTALLS += target

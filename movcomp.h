@@ -17,7 +17,7 @@ public:
     movcomp(int x, int y, int maxnmod, int velct): component(x, y, maxnmod), velocity(velct) {}
     movcomp(const movcomp &mvc): component(mvc), velocity(mvc.getVelocity()) {}
 
-    movcomp& Move(sides s);
+    movcomp& Move(sides s, int steps);
 
     int retType() const  { return 4;}
 

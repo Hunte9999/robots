@@ -6,6 +6,7 @@
 #include <vector>
 #include "component.h"
 #include "movcomp.h"
+#include "/home/frostic/proglabs/roboti/myvector.h"
 
 namespace robots{
 
@@ -13,13 +14,11 @@ class AI
 {
 private:
     env en;
-    std::vector<component*> robots;
+    Vector<component*> robots;
 protected:
     int goRobots(int energy);
-    int canMove(movcomp* csmv, sides s) const;
-    AI& reMap(int x, int y, int n);
 public:
-    AI(env envi): en(envi) {
+    AI(env& envi): en(envi) {
         int a, b;
         place* plc = nullptr;
         en.getRazm(a, b);
@@ -33,9 +32,9 @@ public:
         }
     }
     AI(const AI& a): en(a.getEn()){
-        std::vector<component*> robs = a.getRobots();
+        Vector<component*> robs = a.getRobots();
 
-        for (component* &cmp: robs){
+        for (component* cmp: robs){
             robots.push_back(cmp->clone());
         }
     }
@@ -55,22 +54,17 @@ public:
 
     AI& saveIntoFile(char *nameOfFile);
 
-    bool stop();
+    const env &getEn() const { return en; }
 
-    env getEn() const { return en; }
+    AI& setEn(const env& enn) {en = *(enn.clone()); return *this; }
 
-    AI& setEn(env enn) {en = *(enn.clone()); return *this; }
-
-    std::vector<component*> getRobots() const { return robots; }
+    Vector<component*> getRobots() const { return robots; }
 
     friend std::ostream& operator <<(std::ostream &, const AI &);
 
     virtual ~AI(){
-        for (component* &cmp: robots){
-            delete cmp;
-        }
         //std::cout << "destr ai " <<std::endl;
-        robots.clear();
+        //robots.clear();
     }
 };
 

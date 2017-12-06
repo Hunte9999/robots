@@ -143,11 +143,11 @@ namespace robots {
     env& env::addModule(int x, int y, int type, int energyuse, int cost, int energylevel, int maxnumb, int radius, int angle)
     {
 
-        if(x < 0 || x >= m){
+        if(x < 0 || x >= n){
             throw std::invalid_argument("Invalid x coordinate");
         }
 
-        if(y < 0 || y >= n){
+        if(y < 0 || y >= m){
             throw std::invalid_argument("Invalid y coordinate");
         }
 
@@ -197,11 +197,11 @@ namespace robots {
 
     env& env::addDiffPlace(int x, int y, int type)
     {
-        if(x < 0 || x >= m){
+        if(x < 0 || x >= n){
             throw std::invalid_argument("Invalid x coordinate");
         }
 
-        if(y < 0 || y >= n){
+        if(y < 0 || y >= m){
             throw std::invalid_argument("Invalid y coordinate");
         }
         if(type != 0 && type != 1){
@@ -217,9 +217,117 @@ namespace robots {
         else{
             t = new ti(x, y);
             setType(*t);
+            ++numOfTI;
             //delete t;
         }
         return *this;
+    }
+
+    int env::howManyStepsCanBeMoved(movcomp *mvcmp, sides s, int steps) const
+    {
+        if (mvcmp->getVelocity() < steps){
+            return -1;
+        }
+        place* plc = nullptr;
+        int x = mvcmp->getX(), y = mvcmp->getY();
+
+        switch (s){
+        case UP:
+            for(int i = 1; i < steps + 1; ++i){
+                if(y + i >= m){
+                    return i - 1;
+                }
+                plc = getPlace(x, y+i);
+                if(plc->retType() != 0 || plc->getSost() == CLOSE){
+                    return i - 1;
+                }
+            }
+            return steps;
+            break;
+        case DOWN:
+            for(int i = 1; i < steps + 1; ++i){
+                if(y - i < 0){
+                    return i - 1;
+                }
+                plc = getPlace(x, y-i);
+                if(plc->retType() != 0 || plc->getSost() == CLOSE){
+                    return i - 1;
+                }
+            }
+            return steps;
+            break;
+        case LEFT:
+            for(int i = 1; i < steps + 1; ++i){
+                if(x - i < 0){
+                    return i - 1;
+                }
+                plc = getPlace(x - i, y);
+                if(plc->retType() != 0 || plc->getSost() == CLOSE){
+                    return i - 1;
+                }
+            }
+            return steps;
+            break;
+        case RIGHT:
+            for(int i = 1; i < steps + 1; ++i){
+                if(x + i >= n){
+                    return i - 1;
+                }
+                plc = getPlace(x + i, y);
+                if(plc->retType() != 0 || plc->getSost() == CLOSE){
+                    return i - 1;
+                }
+            }
+            return steps;
+            break;
+
+        default:
+            throw std::invalid_argument("There is no such side");
+        }
+        return -1;
+    }
+
+    env& env::reMap(int x, int y, movcomp *csmv)
+    {
+        place* plc = nullptr;
+        if(!(x == csmv->getX() && y == csmv->getY())){
+            swap(x, y, csmv->getX(), csmv->getY());
+            plc = new place(x, y);
+            plc->setSost(OPEN);
+            setType(*(plc));
+        }
+        return *this;
+    }
+
+    bool env::Move(movcomp *csmv, sides s, int steps)
+    {
+        int x = csmv->getX(), y = csmv->getY();
+        try{
+            csmv->Move(s, steps);
+        }
+        catch (std::exception &ex){
+            ex.what();
+            return false;
+        }
+
+        reMap(x, y, csmv);
+        return true;
+    }
+
+    bool env::isFinished() const
+    {
+        int num = 0;
+        for (int i = 0; i < m; ++i){
+            for (int j = 0; j < n; ++j){
+                if(getPlace(j, i)->getSost() == OPEN && getPlace(j, i)->retType() == 1){
+                    ++num;
+                }
+            }
+        }
+        if(num == numOfTI){
+            return true;
+        }
+        return false;
     }
 
 }

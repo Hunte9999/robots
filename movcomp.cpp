@@ -9,20 +9,23 @@ namespace robots{
         return os;
     }
 
-    movcomp& movcomp::Move(sides s)
+    movcomp& movcomp::Move(sides s, int steps)
     {
+        if(steps > velocity || steps < 0){
+            throw std::invalid_argument("This point cant be reached");
+        }
         switch (s){
         case UP:
-            setY(getY() + velocity);
+            setY(getY() + steps);
             break;
         case DOWN:
-            setY(getY() - velocity);
+            setY(getY() - steps);
             break;
         case LEFT:
-            setX(getX() - velocity);
+            setX(getX() - steps);
             break;
         case RIGHT:
-            setX(getX() + velocity);
+            setX(getX() + steps);
             break;
         }
         return *this;

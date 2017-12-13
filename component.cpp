@@ -29,7 +29,9 @@ namespace robots {
 
         if (canAdd(n)){
             currnummod++;
-            energyuse += n.getEnergyUse();
+            if(n.getSost() == ON){
+                energyuse += n.getEnergyUse();
+            }
             modules.push_back(n.clone());
         }
         else{
@@ -45,34 +47,41 @@ namespace robots {
             throw std::invalid_argument("NO!");
         }
 
-        energyuse -= modules[n]->getEnergyUse();
+        if(modules[n]->getSost() == ON){
+            energyuse -= modules[n]->getEnergyUse();
+        }
 
         std::vector<module*>::iterator it;
         it = modules.begin() + n - 1;
         modules.erase(it);
-
 
         return *this;
     }
 
     component& component::turnOnMod(int n)
     {
-        if(n > currnummod || n < 0){
+        if(n >= currnummod || n < 0){
             throw std::invalid_argument("NO!");
         }
 
-        modules[n - 1]->setSost(ON);
+        if(modules[n]->getSost() != ON){
+            modules[n]->setSost(ON);
+            energyuse += modules[n]->getEnergyUse();
+        }
 
         return *this;
     }
 
     component& component::turnOffMod(int n)
     {
-        if(n > currnummod || n < 0){
+        if(n >= currnummod || n < 0){
             throw std::invalid_argument("NO!");
         }
 
-        modules[n - 1]->setSost(OFF);
+        if(modules[n]->getSost() != OFF){
+            modules[n]->setSost(OFF);
+            energyuse -= modules[n]->getEnergyUse();
+        }
 
         return *this;
     }

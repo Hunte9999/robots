@@ -167,17 +167,17 @@ namespace robots {
         case 1:
             gen = new generator(energylevel, cost);
             cmp->addModule(*gen);
-            cmp->turnOnMod(cmp->getModules().size());
+            cmp->turnOnMod(cmp->getModules().size() - 1);
             break;
         case 2:
             sen = new sensor(radius, angle, energyuse, cost);
             cmp->addModule(*sen);
-            cmp->turnOnMod(cmp->getModules().size());
+            cmp->turnOnMod(cmp->getModules().size() - 1);
             break;
         case 3:
             man = new manager(maxnumb, radius, cost, energyuse);
             cmp->addModule(*man);
-            cmp->turnOnMod(cmp->getModules().size());
+            cmp->turnOnMod(cmp->getModules().size() - 1);
             cmp->setIsManaged(1);
             break;
         default:

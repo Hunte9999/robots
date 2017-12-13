@@ -1,0 +1,16 @@
+<RCC>
+    <qresource prefix="/resources">
+        <file>images/tile_grass.png</file>
+        <file>images/tile_wall.png</file>
+        <file>images/bomberman.png</file>
+        <file>images/bomberman_1.png</file>
+        <file>images/fire1.png</file>
+        <file>images/grass_close.jpg</file>
+        <file>images/wall_close.jpg</file>
+        <file>images/ti_close.jpg</file>
+        <file>images/baserobot.jpg</file>
+        <file>images/managerrobot.jpg</file>
+        <file>images/movingrobot.jpg</file>
+        <file>images/movmanagerobot.jpg</file>
+    </qresource>
+</RCC>

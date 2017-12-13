@@ -66,6 +66,8 @@ public:
         It(T* ss, int size = 0) : st(ss), pointer_(size) {}
     public:
         friend class Vector;
+        It(): st(nullptr), pointer_(0) {}
+        It(const It &other): st(other.st), pointer_(other.pointer_) {}
 
         bool operator!=(const It& other) const
         {

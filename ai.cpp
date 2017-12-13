@@ -9,6 +9,7 @@
 #include "manager.h"
 #include "obstacle.h"
 #include "ti.h"
+#include <set>
 
 namespace robots{
 
@@ -36,13 +37,10 @@ namespace robots{
         for(component* comp: robots){
             os << *(comp) << std::endl;
         }
-        /*for (int i = 0; i < robots.size(); ++i){
-            os << *(robots[i]) << std::endl;
-        }*/
         return os;
     }
 
-    AI& AI::saveIntoFile(char *nameOfFile)
+    /*AI& AI::saveIntoFile(char *nameOfFile)
     {
         FILE *fp = fopen(nameOfFile, "w+b");
         int m, n;
@@ -54,7 +52,7 @@ namespace robots{
         std::fwrite(&n, sizeof(int), 1, fp);
 
         return *this;
-    }
+    }*/
 
     AI& AI::addComponent(int x, int y, int maxnmod, int type, int velocity)
     {
@@ -88,7 +86,7 @@ namespace robots{
 
     AI& AI::start(int shag)
     {
-        int energy = 0;
+        int energy = 0, x;
         if (shag < -1 || shag == 0){
             throw std::invalid_argument("Incorrect input");
         }
@@ -99,6 +97,15 @@ namespace robots{
         if (shag == -1){
             while (!en.isFinished()){
                 energy = goRobots(energy);
+                std::cout << energy << " energy" << std::endl;
+                /*while (energy <= 0){
+                    x = offModulesEnergyLack();
+                    std::cout << x << " x" << std::endl;
+                    if(x == 0){
+                        throw std::length_error("ADD NEW GENERATORS PLEASE!!");
+                    }
+                    energy += x;
+                }*/
             }
         }
         else{
@@ -108,6 +115,15 @@ namespace robots{
                 }
                 //std::cout << i << " shag" << std::endl;
                 energy = goRobots(energy);
+                std::cout << energy << " energy" << std::endl;
+                /*while (energy <= 0){
+                    x = offModulesEnergyLack();
+                    (std::cout << x << " x" << std::endl;
+                    if(x == 0){
+                        throw std::length_error("ADD NEW GENERATORS PLEASE!!");
+                    }
+                    energy += x;
+                }*/
             }
         }
         return *this;
@@ -125,9 +141,9 @@ namespace robots{
         sensor *sen = nullptr;
         generator *gen = nullptr;
         manager *man = nullptr;
-        int go, sch = 0;
+        int go, go1, sch = 0;
         int ars[4];
-        sides a;
+        sides a, a1;
 
         en.getRazm(n ,m);
 
@@ -147,36 +163,115 @@ namespace robots{
                 }
             }*/
             if(csmv && csmv->getIsManaged() == 1){
-                ars[0] = en.howManyStepsCanBeMoved(csmv, UP, csmv->getVelocity());
+                /*ars[0] = en.howManyStepsCanBeMoved(csmv, UP, csmv->getVelocity());
                 ars[1] = en.howManyStepsCanBeMoved(csmv, DOWN, csmv->getVelocity());
                 ars[2] = en.howManyStepsCanBeMoved(csmv, LEFT, csmv->getVelocity());
                 ars[3] = en.howManyStepsCanBeMoved(csmv, RIGHT, csmv->getVelocity());
                 go = ars[0];
                 a = UP;
 
-                if(ars[2] > go){
-                    go = ars[2];
-                    a = LEFT;
-                }
-
                 if(ars[1] > go){
                     go = ars[1];
                     a = DOWN;
+                }
+
+                if(ars[2] > go){
+                    go = ars[2];
+                    a = LEFT;
                 }
 
                 if(ars[3] > go){
                     go = ars[3];
                     a = RIGHT;
                 }
-                std::cout << "go = " << go << ", a = " << a << std::endl;
+
+                if(a == UP){
+                    a1 = DOWN;
+                    go1 = ars[1];
+                }
+                else{
+                    a1 = UP;
+                    go1 = ars[0];
+                }
+
+                if(ars[0] > go1 && a != UP){
+                    a1 = UP;
+                    go1 = ars[0];
+                }
+
+                if(ars[1] > go1 && a != DOWN){
+                    a1 = DOWN;
+                    go1 = ars[1];
+                }
+
+                if(ars[2] > go1 && a != LEFT){
+                    a1 = LEFT;
+                    go1 = ars[2];
+                }
+
+                if(ars[3] > go1 && a != RIGHT){
+                    a1 = RIGHT;
+                    go1 = ars[3];
+                }
+
+                std::map<component*, paircoord>::iterator it = lastPlaces.find(csmv);
+                if(it != lastPlaces.end()){
+                    int x2 = y.x, y2 = y.y;
+                    switch (a){
+                    case RIGHT:
+                        x2 += go;
+                        break;
+                    case LEFT:
+                        x2 -= go;
+                        break;
+                    case UP:
+                        y2 += go;
+                        break;
+                    case DOWN:
+                        y2 -= go;
+                        break;
+                    }
+                    if (it->second.x == x2 && it->second.y == y2){
+                        go = go1;
+                        a = a1;
+                    }
+                }
+                //std::cout << "go = " << go << ", a = " << a << std::endl;
                 if(go > 0){
                     bool isMoved = en.Move(csmv, a, go);
                     if(isMoved){
+                        if (it != lastPlaces.end()){
+                            lastPlaces.erase(it);
+                        }
+                        paircoord z;
+                        z.x = csmv->getX();
+                        z.y = csmv->getY();
+                        lastPlaces.insert(std::pair<component*, paircoord>(csmv, z));
                         now->setX(csmv->getX());
                         now->setY(csmv->getY());
                         std::cout << "Moved component from " << y.x << " " << y.y << " to " << now->getX() << " " << now->getY() << std::endl;
                     }
+                }*/
+
+                switch(rand()%4){
+                case 0:
+                    en.Move(csmv, RIGHT, en.howManyStepsCanBeMoved(csmv, RIGHT, csmv->getVelocity()));
+                    break;
+                case 1:
+                    en.Move(csmv, LEFT, en.howManyStepsCanBeMoved(csmv, LEFT, csmv->getVelocity()));
+                    break;
+                case 2:
+                    en.Move(csmv, UP, en.howManyStepsCanBeMoved(csmv, UP, csmv->getVelocity()));
+                    break;
+                case 3:
+                    en.Move(csmv, DOWN, en.howManyStepsCanBeMoved(csmv, DOWN, csmv->getVelocity()));
+                    break;
                 }
+
+                now->setX(csmv->getX());
+                now->setY(csmv->getY());
+                std::cout << "Moved component from " << y.x << " " << y.y << " to " << now->getX() << " " << now->getY() << std::endl;
+
             }
             mod = now->getModules();
             //num = now->getCurrNumMod();
@@ -245,4 +340,39 @@ namespace robots{
 
         return energ + energy;
     }
+
+    /*int AI::offModulesEnergyLack()
+    {
+        int robot = 0, modul = 0, cmprior = robots[0]->getModules()[0]->getPriority();
+        bool flag = false;
+        std::vector<module*> mod;
+        for(int i = 0; i < robots.size(); ++i){
+            mod = robots[i]->getModules();
+            for (int j = 0; j < mod.size(); ++j){
+                std::cout << i << " i, " << j << " j" << std::endl;
+                if(mod[j]->getSost() == ON && (mod[j]->getPriority() < cmprior || cmprior < 0) && mod[j]->getPriority() >= 0){
+                    robot = i;
+                    modul = j;
+                    cmprior = mod[j]->getPriority();
+                }
+                if(mod[j]->getPriority() >= 0){
+                    flag = true;
+                }
+            }
+        }
+
+        if(flag){
+            std::cout << robot << " robot, " << modul << " modul" << std::endl;
+            //robots[robot]->getModules()[modul]->setSost(OFF);
+            robots[robot]->turnOffMod(modul);
+            return robots[robot]->getModules()[modul]->getEnergyUse();
+        }
+
+        return 0;
+    }
+
+    int AI::onModulesEnoughEnergy(int energy)
+    {
+
+    }*/
 }

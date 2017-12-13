@@ -12,7 +12,6 @@ class sensor:public module
 private:
     int radius, angle;
     sides napr;
-    //int defin[11] = {1, 5, 13, 29, 49, 81, 113, 149, 197, 253, 317};
 protected:
     virtual std::ostream& show(std::ostream &) const;
 public:

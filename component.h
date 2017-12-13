@@ -33,7 +33,7 @@ public:
     component& turnOffMod(int n);
     component& setIsManaged(int n);
 
-    std::vector<module*> getModules() const { return modules; }
+    const std::vector<module*> &getModules() const { return modules; }
     int getCurrNumMod() const { return currnummod; }
     int getIsManaged() const { return ismanaged; }
     int getEnergyUse() const { return energyuse; }

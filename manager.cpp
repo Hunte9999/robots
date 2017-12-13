@@ -36,6 +36,7 @@ namespace robots {
 
         std::vector<component*>::iterator it = tab.begin() + a;
         tab.erase(it);
+        currnumb--;
 
         return *this;
     }
